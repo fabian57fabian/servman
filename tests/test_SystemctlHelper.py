@@ -3,14 +3,14 @@ from src.SystemctlHelper import manage_systemctl_service, get_systemctl_service_
 
 class Test(TestCase):
     def setUp(self):
-        self.servicename = "dmesg"
+        self.servicename = "counter_test"
 
     def test_manage_systemctl_service(self):
         res = manage_systemctl_service(self.servicename, "status")
 
-        assert res is int
+        assert type(res) is int
 
     def test_get_systemctl_service_state(self):
         res = get_systemctl_service_state(self.servicename)
 
-        assert res is int
+        assert type(res) is int
