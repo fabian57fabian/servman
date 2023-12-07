@@ -23,7 +23,7 @@ jobs:
           touch counter_test.service
           echo -e "[Unit]\nDescription=Test\nAfter=multi-user.target\n\n" >> counter_test.service
           echo -e "[Service]\nType=simple\n" >> counter_test.service
-          echo -e "ExecStart=python3 -c \"while True: print('1'); import time; time.sleep(1)\"\n >> counter_test.service
+          echo -e "ExecStart=python3 -c \"while True: print('1'); import time; time.sleep(1)\"\n" >> counter_test.service
           echo -e "[Install]\nWantedBy=multi-user.target" >> counter_test.service
           cp counter_test.service /etc/systemd/system/counter_test.service
           systemctl daemon-reload
