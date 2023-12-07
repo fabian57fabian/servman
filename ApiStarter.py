@@ -1,4 +1,9 @@
-from src.SystemctlApiManager import run_server
+import argparse
+from src.SystemctlRequestsHandler import run_server
 
 if __name__ == '__main__':
-    run_server()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-host", type=str, default="127.0.0.1", help="Exposed host, e.g. 127.0.0.1 or 0.0.0.0")
+    parser.add_argument("-port", type=int, default=1200, help="Exposed Port, e.g. 1200")
+    args = parser.parse_args()
+    run_server(args.host, args.port)
