@@ -1,5 +1,6 @@
 from unittest import TestCase
-from src.SystemctlHelper import manage_systemctl_service, get_systemctl_service_state
+from src.SystemctlHelper import manage_systemctl_service, get_systemctl_service_state, _send_cmd
+
 
 class Test(TestCase):
     def setUp(self):
@@ -14,3 +15,6 @@ class Test(TestCase):
         res = get_systemctl_service_state(self.servicename)
 
         assert type(res) is int
+
+    def test__send_cmd(self):
+        assert _send_cmd(None) == -1

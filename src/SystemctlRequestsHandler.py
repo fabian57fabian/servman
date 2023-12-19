@@ -111,12 +111,12 @@ def _parse_services(services) -> list:
             return None
     return services
 
-def run_server(services:list, host='127.0.0.1', port=1200):
+def build_server(services:list, host='127.0.0.1', port=1200):
     server_address = (host, port)
     servs = _parse_services(services)
     if servs is None:
-        return
+        return None
     handler_cls = lambda *args, **kwargs: SystemctlRequestsHandler(*args, services=services, **kwargs)
     httpd = HTTPServer(server_address, handler_cls)
-    print(f'Starting server on port {port}...with services {services}')
-    httpd.serve_forever()
+    print(f'Build server on port {port}...with services {services}')
+    return httpd

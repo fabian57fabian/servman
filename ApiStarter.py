@@ -1,5 +1,5 @@
 import argparse
-from src.SystemctlRequestsHandler import run_server
+from src.SystemctlRequestsHandler import build_server
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -8,4 +8,5 @@ if __name__ == '__main__':
     parser.add_argument("-services", type=lambda s: s, nargs='+', help="Allowed services")
     args = parser.parse_args()
     services = args.services
-    run_server(services, args.host, args.port)
+    svr = build_server(services, args.host, args.port)
+    svr.serve_forever()
