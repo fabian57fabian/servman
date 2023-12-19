@@ -7,6 +7,10 @@ from src.SystemctlHelper import manage_systemctl_service, get_systemctl_service_
 
 
 class SystemctlRequestsHandler(BaseHTTPRequestHandler):
+    def __init__(self, *args, services:list=None, **kwargs):
+        self.services = services if services is not None else []
+        super().__init__(*args, **kwargs)
+
     def _send_response(self, status_code, message):
         self.send_response(status_code)
         self.send_header('Content-type', 'application/json')
@@ -58,6 +62,8 @@ class SystemctlRequestsHandler(BaseHTTPRequestHandler):
             error_message = self._build_answer(False, 'Missing required params in GET request')
             return self._send_response(400, error_message)
         service_name = query_params["servicename"]
+        if service_name not in self.services:
+            return self._send_response(400, self._build_answer(False, "Service not allowed"))
         res = get_systemctl_service_state(service_name)
         response = self._build_answer(True, 'Correctly checked')
         response['result'] = res
@@ -82,21 +88,35 @@ class SystemctlRequestsHandler(BaseHTTPRequestHandler):
             error_message = self._build_answer(False, 'Missing required params in POST request')
             return self._send_response(400, error_message)
 
+        service_name = query_params["servicename"]
+        if service_name not in self.services:
+            return self._send_response(400, self._build_answer(False, "Service not allowed"))
+
         state_mode = str(query_params["mode"]).lower()
         if state_mode not in ["stop", "start", "restart"]:
             error_message = self._build_answer(False, "Unknown parameter for 'mode'")
             return self._send_response(400, error_message)
-
-        service_name = query_params["servicename"]
 
         res = manage_systemctl_service(state_mode, service_name)
         response = self._build_answer(True, '{} {} done'.format(state_mode, service_name))
         response['result'] = res
         self._send_response(200, response)
 
+def _parse_services(services) -> list:
+    if type(services) not in (list, tuple):
+        print("Given services are not lists")
+        return None
+    for s in services:
+        if type(s) is not str:
+            return None
+    return services
 
-def run_server(host='127.0.0.1', port=1200):
+def run_server(services:list, host='127.0.0.1', port=1200):
     server_address = (host, port)
-    httpd = HTTPServer(server_address, SystemctlRequestsHandler)
-    print(f'Starting server on port {port}...')
+    servs = _parse_services(services)
+    if servs is None:
+        return
+    handler_cls = lambda *args, **kwargs: SystemctlRequestsHandler(*args, services=services, **kwargs)
+    httpd = HTTPServer(server_address, handler_cls)
+    print(f'Starting server on port {port}...with services {services}')
     httpd.serve_forever()
